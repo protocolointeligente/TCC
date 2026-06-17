@@ -19,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <nav className="flex items-center gap-4 text-sm">
               <SignedIn>
                 <a href="/history" className="text-slate-300 hover:text-white">Histórico</a>
+                <a href="/cep" className="text-slate-300 hover:text-white">CEP</a>
                 <a href="/upload" className="text-slate-300 hover:text-white">PDF</a>
                 <a href="/pricing" className="text-slate-300 hover:text-white">Planos</a>
                 <UserButton />

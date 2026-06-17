@@ -3,7 +3,7 @@ import json
 import shutil
 
 import stripe
-from fastapi import FastAPI, Depends, Header, HTTPException, UploadFile, File, Request
+from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
@@ -19,10 +19,12 @@ from services.merge import remove_duplicates, rank_articles
 from services.bibliometrics import generate_bibliometrics
 from services.ai_writer import generate_article_card, generate_review
 from services.users import get_or_create_user, can_use_research, increment_usage, update_user_plan
+from dependencies import get_current_user
 from services.docx_export import export_review_to_docx
 from services.pdf_reader import extract_text_from_pdf
 from services.reference_checker import check_references
 from services.stripe_service import create_checkout_session
+from cep_routes import router as cep_router
 
 app = FastAPI(title="Academia IA API")
 
@@ -33,18 +35,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-# ---------------------------------------------------------------------------
-# Auth helper
-# ---------------------------------------------------------------------------
-
-def get_current_user(
-    db: Session = Depends(get_db),
-    x_clerk_user_id: str = Header(...),
-    x_user_email: str | None = Header(default=None),
-):
-    return get_or_create_user(db, x_clerk_user_id, x_user_email)
 
 
 # ---------------------------------------------------------------------------
@@ -341,3 +331,6 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
             update_user_plan(db, clerk_user_id, plan, customer_id)
 
     return {"received": True}
+
+
+app.include_router(cep_router)

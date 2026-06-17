@@ -40,6 +40,7 @@ export default function CepAvancadoPage() {
   const [activeTab, setActiveTab] = useState<Section>("form");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [projectId, setProjectId] = useState<number | null>(null);
   const [error, setError] = useState("");
 
   const [form, setForm] = useState({
@@ -104,6 +105,7 @@ export default function CepAvancadoPage() {
       if (!res.ok) throw new Error(`Erro ${res.status}`);
       const data = await res.json();
       setResult(data);
+      setProjectId(data.project_id ?? null);
       setActiveTab("validator");
     } catch (e: any) {
       setError(e.message || "Erro ao processar análise.");
@@ -225,13 +227,22 @@ export default function CepAvancadoPage() {
       {/* Results */}
       {result && (
         <div className="mt-8">
-          <div className="flex flex-wrap gap-2 mb-6">
+          <div className="flex flex-wrap gap-2 mb-6 items-center">
             <button
               onClick={() => setActiveTab("form")}
               className="text-sm text-slate-400 hover:text-white mr-4"
             >
               ← Editar formulário
             </button>
+            {projectId && (
+              <a
+                href={`${process.env.NEXT_PUBLIC_API_URL}/cep-advanced/project/${projectId}/export-docx`}
+                target="_blank"
+                className="ml-auto bg-green-700 hover:bg-green-600 px-4 py-1.5 rounded-lg text-sm font-semibold"
+              >
+                Exportar DOCX completo
+              </a>
+            )}
             {TABS.map((t) => (
               <button
                 key={t.id}

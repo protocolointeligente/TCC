@@ -5,7 +5,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+FRONTEND_URL = os.getenv("FRONTEND_URL")
+if not FRONTEND_URL:
+    raise RuntimeError("FRONTEND_URL env var is required")
 
 _PRICE_MAP_ENV = {
     "basic": "STRIPE_PRICE_BASIC",

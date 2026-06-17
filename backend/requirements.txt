@@ -8,3 +8,6 @@ openai
 python-docx
 sqlalchemy
 psycopg2-binary
+python-multipart
+pypdf
+stripe

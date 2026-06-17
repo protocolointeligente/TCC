@@ -101,17 +101,7 @@ export default function Home() {
   return (
     <main className="min-h-screen p-6">
       <SignedOut>
-        <div className="max-w-xl mx-auto bg-slate-900 p-8 rounded-2xl text-center mt-20">
-          <h1 className="text-3xl font-bold mb-4">Academia IA</h1>
-          <p className="text-slate-300 mb-6">
-            Entre para gerar TCCs, revisões bibliográficas e fichas científicas.
-          </p>
-          <SignInButton>
-            <button className="bg-violet-600 hover:bg-violet-700 px-6 py-3 rounded-xl font-bold">
-              Entrar
-            </button>
-          </SignInButton>
-        </div>
+        <LandingPage />
       </SignedOut>
 
       <SignedIn>
@@ -276,5 +266,116 @@ export default function Home() {
         </div>
       </SignedIn>
     </main>
+  );
+}
+
+function LandingPage() {
+  return (
+    <div className="min-h-screen bg-[#020817] text-white">
+      <section className="px-6 py-20 max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <p className="text-violet-400 font-semibold mb-4">
+            IA acadêmica para TCC, revisão bibliográfica e CEP
+          </p>
+          <h1 className="text-5xl font-bold leading-tight mb-6">
+            Da ideia inicial ao projeto pronto para revisão do orientador.
+          </h1>
+          <p className="text-slate-300 text-lg mb-8">
+            Busque artigos científicos, gere fichas, revisão bibliográfica,
+            projeto de TCC, documentos para Plataforma Brasil, TCLE, checklist ético
+            e matriz metodológica em português.
+          </p>
+          <div className="flex gap-4">
+            <SignInButton>
+              <button className="bg-violet-600 hover:bg-violet-700 px-6 py-4 rounded-xl font-bold">
+                Começar agora
+              </button>
+            </SignInButton>
+            <a href="#planos" className="border border-slate-600 px-6 py-4 rounded-xl hover:border-slate-400">
+              Ver planos
+            </a>
+          </div>
+        </div>
+        <div className="bg-slate-900 rounded-3xl p-8 border border-slate-800 shadow-2xl space-y-3">
+          {[
+            "✓ Busca em OpenAlex, PubMed e Crossref",
+            "✓ Fichas acadêmicas com objetivo, método e conclusão",
+            "✓ Revisão bibliográfica completa em ABNT",
+            "✓ TCLE, TALE e documentos CEP",
+            "✓ Validador ético com pendências simuladas",
+            "✓ Matriz metodológica e advisor estatístico",
+            "✓ Exportação DOCX editável",
+          ].map((item) => (
+            <div key={item} className="text-slate-300 text-sm">{item}</div>
+          ))}
+        </div>
+      </section>
+
+      <section className="px-6 py-16 max-w-6xl mx-auto">
+        <h2 className="text-3xl font-bold text-center mb-12">O que a plataforma entrega</h2>
+        <div className="grid md:grid-cols-3 gap-6">
+          {[
+            ["Busca científica", "OpenAlex, PubMed, Crossref e Semantic Scholar em uma só consulta."],
+            ["Fichas de artigos", "Objetivo, método, resultados, conclusão e relevância para o seu TCC."],
+            ["Revisão bibliográfica", "Texto estruturado com introdução, justificativa e discussão em ABNT."],
+            ["Assistente CEP", "TCLE, TALE, carta de anuência e Plataforma Brasil gerados automaticamente."],
+            ["Validador ético avançado", "Detecta riscos, simula pendências do CEP e verifica coerência metodológica."],
+            ["Exportação Word", "Arquivo DOCX formatado com referências ABNT para edição final."],
+          ].map(([title, text]) => (
+            <div key={title} className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+              <h3 className="text-lg font-bold mb-2">{title}</h3>
+              <p className="text-slate-400 text-sm">{text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="planos" className="px-6 py-20 max-w-6xl mx-auto">
+        <h2 className="text-4xl font-bold text-center mb-4">Planos</h2>
+        <p className="text-slate-400 text-center mb-12">
+          Pague pelo que usa. Cada geração consome créditos proporcionais ao custo real de IA.
+        </p>
+        <div className="grid md:grid-cols-4 gap-6">
+          {[
+            { name: "Starter", price: "R$ 29", credits: "50 créditos", highlight: false, items: ["5 buscas acadêmicas", "5 fichas completas", "1 revisão simples", "Exportação DOCX"] },
+            { name: "Acadêmico", price: "R$ 59", credits: "140 créditos", highlight: true, items: ["15 buscas acadêmicas", "15 fichas completas", "3 revisões", "1 projeto CEP"] },
+            { name: "TCC Pro", price: "R$ 97", credits: "300 créditos", highlight: false, items: ["TCC completo", "Revisão + bibliometria", "CEP avançado", "DOCX completo"] },
+            { name: "Orientador", price: "R$ 197", credits: "800 créditos", highlight: false, items: ["Uso com vários alunos", "Histórico completo", "Parecer orientador", "Pré-submissão CEP"] },
+          ].map(({ name, price, credits, highlight, items }) => (
+            <div key={name} className={`rounded-2xl p-6 border ${highlight ? "border-violet-500 bg-violet-950/30" : "border-slate-800 bg-slate-900"}`}>
+              <h3 className="text-2xl font-bold">{name}</h3>
+              <p className="text-4xl font-bold mt-4">{price}</p>
+              <p className="text-violet-300 mt-2 text-sm">{credits}</p>
+              <ul className="mt-6 space-y-2 text-slate-300 text-sm">
+                {items.map((item) => <li key={item}>✓ {item}</li>)}
+              </ul>
+              <SignInButton>
+                <button className="mt-6 w-full bg-violet-600 hover:bg-violet-700 py-3 rounded-xl font-bold text-sm">
+                  Começar
+                </button>
+              </SignInButton>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="px-6 py-20 max-w-4xl mx-auto text-center">
+        <h2 className="text-4xl font-bold mb-6">Não é só escrever. É organizar a pesquisa do jeito certo.</h2>
+        <p className="text-slate-300 text-lg mb-4">
+          A plataforma não substitui o orientador. Ela reduz retrabalho,
+          organiza metodologia, evita referências falsas e ajuda o aluno a
+          entregar um material editável, coerente e revisável.
+        </p>
+        <p className="text-yellow-300/80 text-sm mb-8">
+          Os textos gerados são rascunhos acadêmicos assistidos por IA. O aluno deve revisar,
+          conferir fontes, inserir análise própria e validar com o orientador.
+        </p>
+        <SignInButton>
+          <button className="bg-violet-600 hover:bg-violet-700 px-8 py-4 rounded-xl font-bold">
+            Criar minha primeira pesquisa
+          </button>
+        </SignInButton>
+      </section>
+    </div>
   );
 }

@@ -25,6 +25,7 @@ from services.pdf_reader import extract_text_from_pdf
 from services.reference_checker import check_references
 from services.stripe_service import create_checkout_session
 from cep_routes import router as cep_router
+from cep_advanced_routes import router as cep_advanced_router
 
 app = FastAPI(title="Academia IA API")
 
@@ -334,3 +335,4 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
 
 
 app.include_router(cep_router)
+app.include_router(cep_advanced_router)

@@ -20,6 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <SignedIn>
                 <a href="/history" className="text-slate-300 hover:text-white">Histórico</a>
                 <a href="/cep" className="text-slate-300 hover:text-white">CEP</a>
+                <a href="/cep-avancado" className="text-slate-300 hover:text-white">CEP Avançado</a>
                 <a href="/upload" className="text-slate-300 hover:text-white">PDF</a>
                 <a href="/pricing" className="text-slate-300 hover:text-white">Planos</a>
                 <UserButton />

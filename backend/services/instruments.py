@@ -1,93 +1,84 @@
-INSTRUMENT_DATABASE = [
-    {
-        "objective_keywords": ["ansiedade", "competição", "esporte"],
-        "name": "CSAI-2",
-        "full_name": "Competitive State Anxiety Inventory-2",
-        "use": "Avaliação da ansiedade competitiva em atletas.",
-        "population": "Atletas adolescentes e adultos.",
-        "validation_note": "Verificar versão brasileira validada antes da aplicação.",
-        "requires_license": "Verificar direitos de uso.",
-    },
-    {
-        "objective_keywords": ["atividade física", "nível de atividade", "sedentarismo"],
-        "name": "IPAQ",
-        "full_name": "International Physical Activity Questionnaire",
-        "use": "Avaliação do nível de atividade física.",
-        "population": "Adolescentes e adultos.",
-        "validation_note": "Possui versões utilizadas no Brasil.",
-        "requires_license": "Geralmente livre para uso acadêmico, mas conferir versão oficial.",
-    },
-    {
-        "objective_keywords": ["qualidade de vida", "saúde geral"],
-        "name": "WHOQOL-bref",
-        "full_name": "World Health Organization Quality of Life - Bref",
-        "use": "Avaliação da qualidade de vida.",
-        "population": "Adultos.",
-        "validation_note": "Possui versão brasileira validada.",
-        "requires_license": "Verificar orientações da OMS.",
-    },
-    {
-        "objective_keywords": ["sono", "qualidade do sono"],
-        "name": "PSQI",
-        "full_name": "Pittsburgh Sleep Quality Index",
-        "use": "Avaliação da qualidade do sono.",
-        "population": "Adultos.",
-        "validation_note": "Verificar versão brasileira validada.",
-        "requires_license": "Pode exigir permissão de uso.",
-    },
-    {
-        "objective_keywords": ["dor", "percepção de dor"],
-        "name": "EVA",
-        "full_name": "Escala Visual Analógica",
-        "use": "Mensuração subjetiva da dor.",
-        "population": "Diversas populações.",
-        "validation_note": "Instrumento amplamente utilizado.",
-        "requires_license": "Geralmente livre.",
-    },
-    {
-        "objective_keywords": ["depressão", "ansiedade", "estresse"],
-        "name": "DASS-21",
-        "full_name": "Depression, Anxiety and Stress Scale - 21",
-        "use": "Avaliação de sintomas de depressão, ansiedade e estresse.",
-        "population": "Adolescentes e adultos.",
-        "validation_note": "Verificar versão brasileira validada.",
-        "requires_license": "Verificar direitos de uso.",
-    },
-    {
-        "objective_keywords": ["imagem corporal", "insatisfação corporal"],
-        "name": "BSQ",
-        "full_name": "Body Shape Questionnaire",
-        "use": "Avaliação da preocupação com a forma corporal.",
-        "population": "Adolescentes e adultos.",
-        "validation_note": "Verificar versão brasileira validada.",
-        "requires_license": "Verificar direitos de uso.",
-    },
-    {
-        "objective_keywords": ["esforço", "intensidade", "treino"],
-        "name": "Escala de Borg",
-        "full_name": "Rating of Perceived Exertion",
-        "use": "Avaliação subjetiva da percepção de esforço.",
-        "population": "Atletas, praticantes e pacientes.",
-        "validation_note": "Amplamente utilizada em exercício físico.",
-        "requires_license": "Verificar versão utilizada.",
-    },
-]
+from services.instruments_database import INSTRUMENT_DATABASE
 
 _FALLBACK = {
-    "name": "Instrumento não definido automaticamente",
-    "full_name": "Revisão manual necessária",
-    "use": "Não foi possível sugerir instrumento com segurança.",
-    "population": "Depende do objetivo.",
-    "validation_note": "Recomenda-se buscar instrumento validado para o público-alvo.",
-    "requires_license": "Verificar.",
+    "id": "manual_review_required",
+    "name": "Revisão manual necessária",
+    "full_name": "Instrumento não definido automaticamente",
+    "area": "Indefinida",
+    "construct": "Indefinido",
+    "validated_population_brazil": "Não identificado.",
+    "license_use": "Verificar instrumento adequado, validação brasileira e autorização de uso.",
+    "scoring": "Não aplicável.",
+    "ethical_notes": [
+        "O sistema não encontrou instrumento compatível com segurança.",
+        "Exigir busca manual em bases científicas.",
+    ],
 }
 
 
-def suggest_instruments(general_objective: str, specific_objectives: list[str]) -> list[dict]:
+def suggest_instruments(
+    general_objective: str,
+    specific_objectives: list[str],
+    db=None,
+) -> list[dict]:
+    """Return instruments matching the research objectives.
+
+    When a SQLAlchemy session is provided, queries the database so edits
+    made via the admin panel take effect without a code deploy.
+    Falls back to the in-memory list when db is None (e.g. during tests).
+    """
+    if db is not None:
+        return _suggest_from_db(db, general_objective, specific_objectives)
+    return _suggest_from_memory(general_objective, specific_objectives)
+
+
+# ---------------------------------------------------------------------------
+# DB-backed search
+# ---------------------------------------------------------------------------
+
+def _suggest_from_db(db, general_objective: str, specific_objectives: list[str]) -> list[dict]:
+    from instrument_models import ResearchInstrument
+
     text = (general_objective + " " + " ".join(specific_objectives)).lower()
-    suggestions = [
+    all_instruments = (
+        db.query(ResearchInstrument)
+        .filter(ResearchInstrument.is_active.is_(True))
+        .all()
+    )
+    matches = [
+        _to_dict(inst)
+        for inst in all_instruments
+        if any(kw.lower() in text for kw in (inst.objective_keywords or []))
+    ]
+    return matches if matches else [_FALLBACK]
+
+
+def _to_dict(inst) -> dict:
+    return {
+        "id": inst.id,
+        "name": inst.name,
+        "full_name": inst.full_name,
+        "area": inst.area,
+        "construct": inst.construct,
+        "original_reference": inst.original_reference,
+        "brazilian_validation_reference": inst.brazilian_validation_reference,
+        "validated_population_brazil": inst.validated_population_brazil,
+        "license_use": inst.license_use,
+        "scoring": inst.scoring,
+        "application_mode": inst.application_mode,
+        "ethical_notes": inst.ethical_notes,
+    }
+
+
+# ---------------------------------------------------------------------------
+# In-memory fallback
+# ---------------------------------------------------------------------------
+
+def _suggest_from_memory(general_objective: str, specific_objectives: list[str]) -> list[dict]:
+    text = (general_objective + " " + " ".join(specific_objectives)).lower()
+    matches = [
         {k: v for k, v in inst.items() if k != "objective_keywords"}
         for inst in INSTRUMENT_DATABASE
-        if any(kw in text for kw in inst["objective_keywords"])
+        if any(kw.lower() in text for kw in inst.get("objective_keywords", []))
     ]
-    return suggestions if suggestions else [_FALLBACK]
+    return matches if matches else [_FALLBACK]
